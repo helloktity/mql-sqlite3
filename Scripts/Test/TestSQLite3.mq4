@@ -88,6 +88,25 @@ void OnStart()
    else
       Print(">>> Error executing statement: ",db.getErrorMsg());
 
+   Statement insertStmt(db,"insert into buy_orders(a,b) values(?,?);");
+   if(!insertStmt.isValid()
+      || insertStmt.bind(1,1)!=SQLITE_OK
+      || insertStmt.bind(2,"abc")!=SQLITE_OK
+      || insertStmt.step()!=SQLITE_DONE)
+     {
+      Print(">>> Error insert test row: ",db.getErrorMsg());
+      SQLite3::shutdown();
+      return;
+     }
+
+   Statement selectStmt(db,"select b from buy_orders where a=1;");
+   if(!selectStmt.isValid() || selectStmt.step()!=SQLITE_ROW || selectStmt.getColumnBytes(0)!=3)
+     {
+      Print(">>> Error: string bind/read length check failed.");
+      SQLite3::shutdown();
+      return;
+     }
+
 //--- optional but recommended
    SQLite3::shutdown();
   }
