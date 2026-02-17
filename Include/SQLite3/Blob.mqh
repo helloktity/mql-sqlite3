@@ -20,7 +20,10 @@ public:
       char zDb[];
       char zTable[];
       char zColumn[];
-      StringToUtf8(db,zDb);
+      if(db==NULL || db=="")
+         StringToUtf8("main",zDb);
+      else
+         StringToUtf8(db,zDb);
       StringToUtf8(table,zTable);
       StringToUtf8(column,zColumn);
 
