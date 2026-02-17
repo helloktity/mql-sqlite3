@@ -64,6 +64,7 @@ public:
 
                      SQLite3(string filename,int flags,string vfs="")
      {
+      m_ref=0;
       m_valid=sqlite3_open(filename,m_ref,flags,vfs);
       if(m_valid!=SQLITE_OK)
         {
@@ -72,12 +73,12 @@ public:
      }
                     ~SQLite3()
      {
-      if(isValid())
+      if(m_ref!=0)
         {
          int ret=sqlite3_close(m_ref);
          if(ret!=SQLITE_OK)
            {
-            Print(">>> Error close connection: ",getErrorMsg());
+            Print(">>> Error close connection: ",StringFromUtf8Pointer(sqlite3_errstr(ret)));
            }
         }
      }
@@ -89,32 +90,46 @@ public:
    bool              isReadonly(string db) const
      {
       char buf[];
-      StringToUtf8(db,buf);
+      if(db==NULL || db=="")
+         StringToUtf8("main",buf);
+      else
+         StringToUtf8(db,buf);
       return 1==sqlite3_db_readonly(m_ref,buf);
      }
    bool              hasDb(string db) const
      {
       char buf[];
-      StringToUtf8(db,buf);
-      return -1==sqlite3_db_readonly(m_ref,buf);
+      if(db==NULL || db=="")
+         StringToUtf8("main",buf);
+      else
+         StringToUtf8(db,buf);
+      return -1!=sqlite3_db_readonly(m_ref,buf);
      }
    string            getDbFilename(string db) const
      {
+      if(db==NULL || db=="")
+         return StringFromUtf8Pointer(sqlite3_db_filename(m_ref,0));
       char buf[];
       StringToUtf8(db,buf);
       return StringFromUtf8Pointer(sqlite3_db_filename(m_ref,buf));
      }
    int               getDbColumnMetadata(string db,string table,string column,ColumnInfo &info)
      {
-      char zDbName[];
       char zTableName[];
       char zColumnName[];
-      StringToUtf8(db,zDbName);
       StringToUtf8(table,zTableName);
       StringToUtf8(column,zColumnName);
       intptr_t pDataType;
       intptr_t pCollSeq;
-      int res=sqlite3_table_column_metadata(m_ref,zDbName,zTableName,zColumnName,pDataType,pCollSeq,info.NotNull,info.PrimaryKey,info.AutoIncrement);
+      int res=SQLITE_ERROR;
+      if(db==NULL || db=="")
+         res=sqlite3_table_column_metadata(m_ref,0,zTableName,zColumnName,pDataType,pCollSeq,info.NotNull,info.PrimaryKey,info.AutoIncrement);
+      else
+        {
+         char zDbName[];
+         StringToUtf8(db,zDbName);
+         res=sqlite3_table_column_metadata(m_ref,zDbName,zTableName,zColumnName,pDataType,pCollSeq,info.NotNull,info.PrimaryKey,info.AutoIncrement);
+        }
       if(res==SQLITE_OK)
         {
          info.DataType=StringFromUtf8Pointer(pDataType);
@@ -149,16 +164,23 @@ public:
 
    bool              loadExtension(string name,string entry)
      {
-      char u8name[],u8entry[];
+      char u8name[];
       StringToUtf8(name,u8name);
-      StringToUtf8(name,u8entry);
-      intptr_t errMsg;
-      int res= sqlite3_load_extension(m_ref,u8name,u8entry,errMsg);
+      intptr_t errMsg=0;
+      int res=SQLITE_ERROR;
+      if(entry==NULL || entry=="")
+         res=sqlite3_load_extension(m_ref,u8name,0,errMsg);
+      else
+        {
+         char u8entry[];
+         StringToUtf8(entry,u8entry);
+         res=sqlite3_load_extension(m_ref,u8name,u8entry,errMsg);
+        }
       if(res == SQLITE_OK) return true;
       else
         {
          PrintFormat(">>> Error loading extension module %s: %s",name,StringFromUtf8Pointer(errMsg));
-         sqlite3_free(errMsg);
+         if(errMsg!=0) sqlite3_free(errMsg);
          return false;
         }
      }
@@ -166,7 +188,7 @@ public:
    int               setAutoCheckpoint(int frameThreshold) {return sqlite3_wal_autocheckpoint(m_ref,frameThreshold);}
    int               checkpoint(string db,int mode,int &pnLog,int &pnCkpt)
      {
-      if(db==NULL)
+      if(db==NULL || db=="")
          return sqlite3_wal_checkpoint_v2(m_ref, 0, mode, pnLog, pnCkpt);
       else
         {
