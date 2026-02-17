@@ -38,7 +38,34 @@ void OnStart()
    Print(dbPath);
 
    SQLite3 db(dbPath,SQLITE_OPEN_READWRITE|SQLITE_OPEN_CREATE);
-   if(!db.isValid()) return;
+   if(!db.isValid())
+     {
+      SQLite3::shutdown();
+      return;
+     }
+
+   if(!db.hasDb("main"))
+     {
+      Print(">>> Error: main database should be available after open.");
+      SQLite3::shutdown();
+      return;
+     }
+
+   if(db.hasDb("missing_db"))
+     {
+      Print(">>> Error: unexpected database alias reported as existing.");
+      SQLite3::shutdown();
+      return;
+     }
+
+   int pnLog=0,pnCkpt=0;
+   int checkpointRes=db.checkpoint("",SQLITE_CHECKPOINT_PASSIVE,pnLog,pnCkpt);
+   if(checkpointRes==SQLITE_MISUSE)
+     {
+      Print(">>> Error: checkpoint with empty db name should map to default db.");
+      SQLite3::shutdown();
+      return;
+     }
 
    if(!db.hasDb("main"))
      {
@@ -77,6 +104,7 @@ void OnStart()
    if(!s.isValid())
      {
       Print(db.getErrorMsg());
+      SQLite3::shutdown();
       return;
      }
 

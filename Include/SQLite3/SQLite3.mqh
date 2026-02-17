@@ -166,7 +166,7 @@ public:
    int               setAutoCheckpoint(int frameThreshold) {return sqlite3_wal_autocheckpoint(m_ref,frameThreshold);}
    int               checkpoint(string db,int mode,int &pnLog,int &pnCkpt)
      {
-      if(db==NULL)
+      if(db==NULL || db=="")
          return sqlite3_wal_checkpoint_v2(m_ref, 0, mode, pnLog, pnCkpt);
       else
         {
