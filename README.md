@@ -5,9 +5,9 @@ SQLite3 binding for the MQL language (both 32bit MT4 and 64bit MT5)
 ## Introduction
 
 This is a complete binding of the [SQLite3](http://sqlite.org/) library (version
-3180000) for the MQL4/5 language used by MetaTrader4/5.
+3018000) for the MQL4/5 language used by MetaTrader4/5.
 
-SQLite is an fast embeded SQL engine written in C
+SQLite is a fast embedded SQL engine written in C
 and [widely used](http://sqlite.org/mostdeployed.html) by a lot of projects. We
 always have the need to persistent states of Expert Advisors and SQLite seems to
 be the best solution.

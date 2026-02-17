@@ -17,7 +17,13 @@ void OnStart()
 //--- optional but recommended
    SQLite3::initialize();
 
-//--- ensure the dll and the lib is of the same version
+//--- verify the dll and headers are aligned on the numeric version
+   if(SQLite3::getVersionNumber()!=SQLITE_VERSION_NUMBER)
+     {
+      Print("Version mismatch: dll=",SQLite3::getVersionNumber(),", header=",SQLITE_VERSION_NUMBER);
+      SQLite3::shutdown();
+      return;
+     }
    Print(SQLite3::getVersionNumber(), " = ", SQLITE_VERSION_NUMBER);
    Print(SQLite3::getVersion(), " = ", SQLITE_VERSION);
    Print(SQLite3::getSourceId(), " = ", SQLITE_SOURCE_ID);
@@ -41,6 +47,16 @@ void OnStart()
       Print(">>> SQL is complete");
    else
       Print(">>> SQL not complete");
+
+   string incompleteSql="create table broken_table(a int";
+   if(!Statement::isComplete(incompleteSql))
+      Print(">>> Incomplete SQL detected as expected.");
+   else
+     {
+      Print(">>> Unexpected result: incomplete SQL reported as complete.");
+      SQLite3::shutdown();
+      return;
+     }
 
    Statement s(db,sql);
 
