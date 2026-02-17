@@ -71,6 +71,11 @@ void OnStart()
    if(defaultDbFilename==NULL || StringLen(defaultDbFilename)==0)
      {
       Print(">>> Error: getDbFilename with empty db name should resolve to main database path.");
+   int pnLog=0,pnCkpt=0;
+   int checkpointRes=db.checkpoint("",SQLITE_CHECKPOINT_PASSIVE,pnLog,pnCkpt);
+   if(checkpointRes==SQLITE_MISUSE)
+     {
+      Print(">>> Error: checkpoint with empty db name should map to default db.");
       SQLite3::shutdown();
       return;
      }
@@ -80,6 +85,16 @@ void OnStart()
    if(checkpointRes==SQLITE_MISUSE)
      {
       Print(">>> Error: checkpoint with empty db name should map to default db.");
+   if(!db.hasDb("main"))
+     {
+      Print(">>> Error: main database should be available after open.");
+      SQLite3::shutdown();
+      return;
+     }
+
+   if(db.hasDb("missing_db"))
+     {
+      Print(">>> Error: unexpected database alias reported as existing.");
       SQLite3::shutdown();
       return;
      }
@@ -146,6 +161,8 @@ void OnStart()
      }
 
    if(insertStmt.step()!=SQLITE_DONE)
+      || insertStmt.bind(2,"abc")!=SQLITE_OK
+      || insertStmt.step()!=SQLITE_DONE)
      {
       Print(">>> Error insert test row: ",db.getErrorMsg());
       SQLite3::shutdown();
