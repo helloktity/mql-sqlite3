@@ -67,6 +67,20 @@ void OnStart()
       return;
      }
 
+   if(!db.hasDb("main"))
+     {
+      Print(">>> Error: main database should be available after open.");
+      SQLite3::shutdown();
+      return;
+     }
+
+   if(db.hasDb("missing_db"))
+     {
+      Print(">>> Error: unexpected database alias reported as existing.");
+      SQLite3::shutdown();
+      return;
+     }
+
    Print("DB created.");
    string sql="create table buy_orders"
               "(a int, b text);";
@@ -129,6 +143,8 @@ void OnStart()
      }
 
    if(insertStmt.step()!=SQLITE_DONE)
+      || insertStmt.bind(2,"abc")!=SQLITE_OK
+      || insertStmt.step()!=SQLITE_DONE)
      {
       Print(">>> Error insert test row: ",db.getErrorMsg());
       SQLite3::shutdown();
