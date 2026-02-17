@@ -70,6 +70,7 @@ int sqlite3_limit(intptr_t,int id,int newVal);
 int sqlite3_busy_timeout(intptr_t,int ms);
 
 intptr_t sqlite3_db_filename(intptr_t,const char &zDbName[]);
+intptr_t sqlite3_db_filename(intptr_t,intptr_t);
 int sqlite3_db_readonly(intptr_t,const char &zDbName[]);
 int sqlite3_table_column_metadata(
                                   intptr_t,/* Connection handle */

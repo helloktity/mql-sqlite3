@@ -100,6 +100,8 @@ public:
      }
    string            getDbFilename(string db) const
      {
+      if(db==NULL || db=="")
+         return StringFromUtf8Pointer(sqlite3_db_filename(m_ref,0));
       char buf[];
       StringToUtf8(db,buf);
       return StringFromUtf8Pointer(sqlite3_db_filename(m_ref,buf));

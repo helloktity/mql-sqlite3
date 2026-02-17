@@ -58,6 +58,10 @@ void OnStart()
       return;
      }
 
+   string defaultDbFilename=db.getDbFilename("");
+   if(defaultDbFilename==NULL || StringLen(defaultDbFilename)==0)
+     {
+      Print(">>> Error: getDbFilename with empty db name should resolve to main database path.");
    int pnLog=0,pnCkpt=0;
    int checkpointRes=db.checkpoint("",SQLITE_CHECKPOINT_PASSIVE,pnLog,pnCkpt);
    if(checkpointRes==SQLITE_MISUSE)
@@ -67,6 +71,11 @@ void OnStart()
       return;
      }
 
+   int pnLog=0,pnCkpt=0;
+   int checkpointRes=db.checkpoint("",SQLITE_CHECKPOINT_PASSIVE,pnLog,pnCkpt);
+   if(checkpointRes==SQLITE_MISUSE)
+     {
+      Print(">>> Error: checkpoint with empty db name should map to default db.");
    if(!db.hasDb("main"))
      {
       Print(">>> Error: main database should be available after open.");
