@@ -14,6 +14,7 @@ class Statement
 private:
    int               m_valid;
    intptr_t          m_ref;
+   intptr_t          m_conn;
 public:
 
    static bool       isComplete(string sql)
@@ -25,8 +26,9 @@ public:
 
                      Statement(const SQLite3 &conn,string sql)
      {
+      m_conn=conn.ref();
       m_ref=0;
-      m_valid=sqlite3_prepare(conn.ref(),sql,m_ref);
+      m_valid=sqlite3_prepare(m_conn,sql,m_ref);
      }
                     ~Statement() {if(m_ref!=0)sqlite3_finalize(m_ref);}
 
@@ -34,13 +36,12 @@ public:
      {
       if(m_ref!=0)
         {
-         intptr_t h=getConnectionHandle();
          sqlite3_finalize(m_ref);
          m_ref=0;
-         m_valid=sqlite3_prepare(h,sql,m_ref);
-         return m_valid==SQLITE_OK;
         }
-      return false;
+      if(m_conn==0) return false;
+      m_valid=sqlite3_prepare(m_conn,sql,m_ref);
+      return m_valid==SQLITE_OK;
      }
    string            getSql() const {return StringFromUtf8Pointer(sqlite3_sql(m_ref));}
    string            getExpandedSql() const
@@ -51,7 +52,7 @@ public:
       sqlite3_free(expandedSql);
       return sql;
      }
-   intptr_t          getConnectionHandle() const {return sqlite3_db_handle(m_ref);}
+   intptr_t          getConnectionHandle() const {if(m_ref!=0)return sqlite3_db_handle(m_ref);return m_conn;}
 
    bool              isValid() const {return m_valid==SQLITE_OK;}
 

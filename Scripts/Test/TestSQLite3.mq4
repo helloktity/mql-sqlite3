@@ -102,6 +102,14 @@ void OnStart()
       return;
      }
 
+   Statement recoveringStmt(db,"select * from definitely_missing_table");
+   if(recoveringStmt.isValid() || !recoveringStmt.setSql("select 1;") || !recoveringStmt.isValid())
+     {
+      Print(">>> Error: Statement::setSql should recover after initial prepare failure.");
+      SQLite3::shutdown();
+      return;
+     }
+
    Statement s(db,sql);
 
    if(!s.isValid())
