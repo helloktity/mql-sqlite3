@@ -23,12 +23,12 @@ public:
       m_ref=sqlite3_backup_init(dest.ref(),destDbNameBuf,src.ref(),srcDbNameBuf);
      }
 
-                    ~Backup() {sqlite3_backup_finish(m_ref);}
+                    ~Backup() {if(isValid()) sqlite3_backup_finish(m_ref);}
    bool              isValid() const {return m_ref!=NULL;}
    intptr_t          ref() const {return m_ref;}
 
    // SQLITE_OK | SQLITE_DONE for success completion
-   // SQLITE_READONLY | SQLITE_IOERR_* | SQLITE_NOMEM is condidered fatal
+   // SQLITE_READONLY | SQLITE_IOERR_* | SQLITE_NOMEM is considered fatal
    // SQLITE_BUSY if timeout waiting resource lock
    int               step(int pages) {return sqlite3_backup_step(m_ref,pages);}
    int               getPageCount() const {return sqlite3_backup_pagecount(m_ref);}
