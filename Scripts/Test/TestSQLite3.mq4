@@ -53,6 +53,13 @@ void OnStart()
       return;
      }
 
+   if(!db.hasDb(""))
+     {
+      Print(">>> Error: empty database name should map to main database.");
+      SQLite3::shutdown();
+      return;
+     }
+
    if(db.hasDb("missing_db"))
      {
       Print(">>> Error: unexpected database alias reported as existing.");

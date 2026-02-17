@@ -90,12 +90,19 @@ public:
    bool              isReadonly(string db) const
      {
       char buf[];
-      StringToUtf8(db,buf);
+      if(db==NULL || db=="")
+         StringToUtf8("main",buf);
+      else
+         StringToUtf8(db,buf);
       return 1==sqlite3_db_readonly(m_ref,buf);
      }
    bool              hasDb(string db) const
      {
       char buf[];
+      if(db==NULL || db=="")
+         StringToUtf8("main",buf);
+      else
+         StringToUtf8(db,buf);
       StringToUtf8(db,buf);
       return -1!=sqlite3_db_readonly(m_ref,buf);
      }
