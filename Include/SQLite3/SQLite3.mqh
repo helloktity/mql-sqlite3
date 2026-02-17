@@ -164,16 +164,23 @@ public:
 
    bool              loadExtension(string name,string entry)
      {
-      char u8name[],u8entry[];
+      char u8name[];
       StringToUtf8(name,u8name);
-      StringToUtf8(entry,u8entry);
-      intptr_t errMsg;
-      int res= sqlite3_load_extension(m_ref,u8name,u8entry,errMsg);
+      intptr_t errMsg=0;
+      int res=SQLITE_ERROR;
+      if(entry==NULL || entry=="")
+         res=sqlite3_load_extension(m_ref,u8name,0,errMsg);
+      else
+        {
+         char u8entry[];
+         StringToUtf8(entry,u8entry);
+         res=sqlite3_load_extension(m_ref,u8name,u8entry,errMsg);
+        }
       if(res == SQLITE_OK) return true;
       else
         {
          PrintFormat(">>> Error loading extension module %s: %s",name,StringFromUtf8Pointer(errMsg));
-         sqlite3_free(errMsg);
+         if(errMsg!=0) sqlite3_free(errMsg);
          return false;
         }
      }

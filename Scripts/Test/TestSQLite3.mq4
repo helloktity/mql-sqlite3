@@ -80,16 +80,6 @@ void OnStart()
    if(checkpointRes==SQLITE_MISUSE)
      {
       Print(">>> Error: checkpoint with empty db name should map to default db.");
-   if(!db.hasDb("main"))
-     {
-      Print(">>> Error: main database should be available after open.");
-      SQLite3::shutdown();
-      return;
-     }
-
-   if(db.hasDb("missing_db"))
-     {
-      Print(">>> Error: unexpected database alias reported as existing.");
       SQLite3::shutdown();
       return;
      }
@@ -215,6 +205,14 @@ void OnStart()
    if(!bk.isValid())
      {
       Print(">>> Error: Backup should default empty db names to main schema.");
+      SQLite3::shutdown();
+      return;
+     }
+
+   db.setLoadExtension(true);
+   if(db.loadExtension("missing_extension_file",""))
+     {
+      Print(">>> Error: loading a missing extension should fail.");
       SQLite3::shutdown();
       return;
      }
