@@ -64,6 +64,7 @@ public:
 
                      SQLite3(string filename,int flags,string vfs="")
      {
+      m_ref=0;
       m_valid=sqlite3_open(filename,m_ref,flags,vfs);
       if(m_valid!=SQLITE_OK)
         {
@@ -72,12 +73,12 @@ public:
      }
                     ~SQLite3()
      {
-      if(isValid())
+      if(m_ref!=0)
         {
          int ret=sqlite3_close(m_ref);
          if(ret!=SQLITE_OK)
            {
-            Print(">>> Error close connection: ",getErrorMsg());
+            Print(">>> Error close connection: ",StringFromUtf8Pointer(sqlite3_errstr(ret)));
            }
         }
      }

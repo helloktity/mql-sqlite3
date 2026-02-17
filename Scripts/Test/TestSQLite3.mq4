@@ -9,6 +9,7 @@
 #property strict
 
 #include <SQLite3/Statement.mqh>
+#include <SQLite3/Blob.mqh>
 //+------------------------------------------------------------------+
 //| Script program start function                                    |
 //+------------------------------------------------------------------+
@@ -164,6 +165,30 @@ void OnStart()
    if(!selectStmt.isValid() || selectStmt.step()!=SQLITE_ROW || selectStmt.getColumnBytes(0)!=3)
      {
       Print(">>> Error: string bind/read length check failed.");
+      SQLite3::shutdown();
+      return;
+     }
+
+   Statement blobSetup(db,"create table if not exists blob_test(data blob);");
+   if(!blobSetup.isValid() || blobSetup.step()!=SQLITE_DONE)
+     {
+      Print(">>> Error creating blob_test table: ",db.getErrorMsg());
+      SQLite3::shutdown();
+      return;
+     }
+
+   Statement blobInsert(db,"insert into blob_test(data) values(zeroblob(4));");
+   if(!blobInsert.isValid() || blobInsert.step()!=SQLITE_DONE)
+     {
+      Print(">>> Error inserting blob row: ",db.getErrorMsg());
+      SQLite3::shutdown();
+      return;
+     }
+
+   Blob blob(db,"","blob_test","data",db.getLastInsertRowId(),true);
+   if(!blob.isValid() || blob.size()!=4)
+     {
+      Print(">>> Error: Blob should default empty db name to main schema.");
       SQLite3::shutdown();
       return;
      }

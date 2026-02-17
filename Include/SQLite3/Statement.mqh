@@ -25,16 +25,18 @@ public:
 
                      Statement(const SQLite3 &conn,string sql)
      {
+      m_ref=0;
       m_valid=sqlite3_prepare(conn.ref(),sql,m_ref);
      }
-                    ~Statement() {if(isValid())sqlite3_finalize(m_ref);}
+                    ~Statement() {if(m_ref!=0)sqlite3_finalize(m_ref);}
 
    bool              setSql(string sql)
      {
-      if(isValid())
+      if(m_ref!=0)
         {
          intptr_t h=getConnectionHandle();
          sqlite3_finalize(m_ref);
+         m_ref=0;
          m_valid=sqlite3_prepare(h,sql,m_ref);
          return m_valid==SQLITE_OK;
         }
