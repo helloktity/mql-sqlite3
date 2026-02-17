@@ -9,7 +9,7 @@ This is a complete binding of the [SQLite3](http://sqlite.org/) library (version
 
 SQLite is a fast embedded SQL engine written in C
 and [widely used](http://sqlite.org/mostdeployed.html) by a lot of projects. We
-always have the need to persistent states of Expert Advisors and SQLite seems to
+always need to persist states of Expert Advisors and SQLite seems to
 be the best solution.
 
 This binding tries to remain compatible between MQL4/5. Users of both versions

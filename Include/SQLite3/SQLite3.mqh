@@ -151,7 +151,7 @@ public:
      {
       char u8name[],u8entry[];
       StringToUtf8(name,u8name);
-      StringToUtf8(name,u8entry);
+      StringToUtf8(entry,u8entry);
       intptr_t errMsg;
       int res= sqlite3_load_extension(m_ref,u8name,u8entry,errMsg);
       if(res == SQLITE_OK) return true;

@@ -40,6 +40,20 @@ void OnStart()
    SQLite3 db(dbPath,SQLITE_OPEN_READWRITE|SQLITE_OPEN_CREATE);
    if(!db.isValid()) return;
 
+   if(!db.hasDb("main"))
+     {
+      Print(">>> Error: main database should be available after open.");
+      SQLite3::shutdown();
+      return;
+     }
+
+   if(db.hasDb("missing_db"))
+     {
+      Print(">>> Error: unexpected database alias reported as existing.");
+      SQLite3::shutdown();
+      return;
+     }
+
    Print("DB created.");
    string sql="create table buy_orders"
               "(a int, b text);";
