@@ -74,7 +74,7 @@ public:
      {
       uchar u8text[];
       StringToUtf8(text,u8text);
-      return sqlite3_bind_text(m_ref,i,u8text,ArraySize(u8text),SQLITE_TRANSIENT);
+      return sqlite3_bind_text(m_ref,i,u8text,MathMax(ArraySize(u8text)-1,0),SQLITE_TRANSIENT);
      }
 
    int               bind(int i,double value) {return sqlite3_bind_double(m_ref,i,value);}
