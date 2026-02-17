@@ -41,7 +41,14 @@ public:
       return false;
      }
    string            getSql() const {return StringFromUtf8Pointer(sqlite3_sql(m_ref));}
-   string            getExpandedSql() const {return StringFromUtf8Pointer(sqlite3_expanded_sql(m_ref));}
+   string            getExpandedSql() const
+     {
+      intptr_t expandedSql=sqlite3_expanded_sql(m_ref);
+      if(expandedSql==0) return NULL;
+      string sql=StringFromUtf8Pointer(expandedSql);
+      sqlite3_free(expandedSql);
+      return sql;
+     }
    intptr_t          getConnectionHandle() const {return sqlite3_db_handle(m_ref);}
 
    bool              isValid() const {return m_valid==SQLITE_OK;}
@@ -74,7 +81,7 @@ public:
      {
       uchar u8text[];
       StringToUtf8(text,u8text);
-      return sqlite3_bind_text(m_ref,i,u8text,ArraySize(u8text),SQLITE_TRANSIENT);
+      return sqlite3_bind_text(m_ref,i,u8text,MathMax(ArraySize(u8text)-1,0),SQLITE_TRANSIENT);
      }
 
    int               bind(int i,double value) {return sqlite3_bind_double(m_ref,i,value);}
