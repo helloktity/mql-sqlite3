@@ -103,7 +103,6 @@ public:
          StringToUtf8("main",buf);
       else
          StringToUtf8(db,buf);
-      StringToUtf8(db,buf);
       return -1!=sqlite3_db_readonly(m_ref,buf);
      }
    string            getDbFilename(string db) const

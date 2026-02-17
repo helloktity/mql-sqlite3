@@ -17,6 +17,8 @@ private:
 public:
                      Blob(const SQLite3 &conn,string db,string table,string column,long row,bool readonly=true)
      {
+      m_valid=false;
+      m_ref=0;
       char zDb[];
       char zTable[];
       char zColumn[];
@@ -30,15 +32,15 @@ public:
       int res=sqlite3_blob_open(conn.ref(),zDb,zTable,zColumn,row,readonly?0:1,m_ref);
       m_valid=(res==SQLITE_OK);
      }
-                    ~Blob() {if(m_valid) sqlite3_blob_close(m_ref);}
+                    ~Blob() {if(m_ref!=0) sqlite3_blob_close(m_ref);}
 
    bool              isValid() const {return m_valid;}
    intptr_t          ref() const {return m_ref;}
 
-   int               size() const {return sqlite3_blob_bytes(m_ref); }
+   int               size() const {if(!m_valid)return -1;return sqlite3_blob_bytes(m_ref); }
 
-   int               moveTo(long rowId) {return sqlite3_blob_reopen(m_ref,rowId);}
-   int               read(uchar &buf[],int size,int offset) {return sqlite3_blob_read(m_ref,buf,size,offset);}
-   int               write(const uchar &buf[],int size,int offset) {return sqlite3_blob_write(m_ref,buf,size,offset);}
+   int               moveTo(long rowId) {if(!m_valid)return SQLITE_MISUSE;return sqlite3_blob_reopen(m_ref,rowId);}
+   int               read(uchar &buf[],int size,int offset) {if(!m_valid)return SQLITE_MISUSE;return sqlite3_blob_read(m_ref,buf,size,offset);}
+   int               write(const uchar &buf[],int size,int offset) {if(!m_valid)return SQLITE_MISUSE;return sqlite3_blob_write(m_ref,buf,size,offset);}
   };
 //+------------------------------------------------------------------+

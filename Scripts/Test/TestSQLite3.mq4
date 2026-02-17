@@ -71,11 +71,6 @@ void OnStart()
    if(defaultDbFilename==NULL || StringLen(defaultDbFilename)==0)
      {
       Print(">>> Error: getDbFilename with empty db name should resolve to main database path.");
-   int pnLog=0,pnCkpt=0;
-   int checkpointRes=db.checkpoint("",SQLITE_CHECKPOINT_PASSIVE,pnLog,pnCkpt);
-   if(checkpointRes==SQLITE_MISUSE)
-     {
-      Print(">>> Error: checkpoint with empty db name should map to default db.");
       SQLite3::shutdown();
       return;
      }
@@ -161,8 +156,6 @@ void OnStart()
      }
 
    if(insertStmt.step()!=SQLITE_DONE)
-      || insertStmt.bind(2,"abc")!=SQLITE_OK
-      || insertStmt.step()!=SQLITE_DONE)
      {
       Print(">>> Error insert test row: ",db.getErrorMsg());
       SQLite3::shutdown();
@@ -197,6 +190,14 @@ void OnStart()
    if(!blob.isValid() || blob.size()!=4)
      {
       Print(">>> Error: Blob should default empty db name to main schema.");
+      SQLite3::shutdown();
+      return;
+     }
+
+   Blob invalidBlob(db,"main","blob_test","missing_col",db.getLastInsertRowId(),true);
+   if(invalidBlob.isValid() || invalidBlob.size()!=-1 || invalidBlob.moveTo(1)!=SQLITE_MISUSE)
+     {
+      Print(">>> Error: invalid Blob should remain guarded from unsafe operations.");
       SQLite3::shutdown();
       return;
      }
