@@ -82,6 +82,17 @@ int sqlite3_table_column_metadata(
                                   bool &isPrimaryKey,/* OUTPUT: True if column part of PK */
                                   bool &isAutoinc/* OUTPUT: True if column is auto-increment */
                                   );
+int sqlite3_table_column_metadata(
+                                  intptr_t,/* Connection handle */
+                                  intptr_t,/* Database name or NULL */
+                                  const char &zTableName[],/* Table name */
+                                  const char &zColumnName[],/* Column name */
+                                  intptr_t   &pzDataType,/* OUTPUT: Declared data type */
+                                  intptr_t   &pzCollSeq,/* OUTPUT: Collation sequence name */
+                                  bool &isNotNull,/* OUTPUT: True if NOT NULL constraint exists */
+                                  bool &isPrimaryKey,/* OUTPUT: True if column part of PK */
+                                  bool &isAutoinc/* OUTPUT: True if column is auto-increment */
+                                  );
 
 int sqlite3_status(int op,int &pCurrent,int &pHighwater,bool reset=false);
 int sqlite3_status64(int op,long &pCurrent,long &pHighwater,bool reset=false);

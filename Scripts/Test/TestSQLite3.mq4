@@ -116,6 +116,14 @@ void OnStart()
    else
       Print(">>> Error executing statement: ",db.getErrorMsg());
 
+   ColumnInfo columnInfo;
+   if(db.getDbColumnMetadata("","buy_orders","b",columnInfo)!=SQLITE_OK)
+     {
+      Print(">>> Error: metadata lookup with empty db name failed.");
+      SQLite3::shutdown();
+      return;
+     }
+
    Statement insertStmt(db,"insert into buy_orders(a,b) values(?,?);");
    if(!insertStmt.isValid()
       || insertStmt.bind(1,1)!=SQLITE_OK

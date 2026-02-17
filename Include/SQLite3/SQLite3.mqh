@@ -106,15 +106,21 @@ public:
      }
    int               getDbColumnMetadata(string db,string table,string column,ColumnInfo &info)
      {
-      char zDbName[];
       char zTableName[];
       char zColumnName[];
-      StringToUtf8(db,zDbName);
       StringToUtf8(table,zTableName);
       StringToUtf8(column,zColumnName);
       intptr_t pDataType;
       intptr_t pCollSeq;
-      int res=sqlite3_table_column_metadata(m_ref,zDbName,zTableName,zColumnName,pDataType,pCollSeq,info.NotNull,info.PrimaryKey,info.AutoIncrement);
+      int res=SQLITE_ERROR;
+      if(db==NULL || db=="")
+         res=sqlite3_table_column_metadata(m_ref,0,zTableName,zColumnName,pDataType,pCollSeq,info.NotNull,info.PrimaryKey,info.AutoIncrement);
+      else
+        {
+         char zDbName[];
+         StringToUtf8(db,zDbName);
+         res=sqlite3_table_column_metadata(m_ref,zDbName,zTableName,zColumnName,pDataType,pCollSeq,info.NotNull,info.PrimaryKey,info.AutoIncrement);
+        }
       if(res==SQLITE_OK)
         {
          info.DataType=StringFromUtf8Pointer(pDataType);
