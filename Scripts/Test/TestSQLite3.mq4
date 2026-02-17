@@ -10,6 +10,7 @@
 
 #include <SQLite3/Statement.mqh>
 #include <SQLite3/Blob.mqh>
+#include <SQLite3/Backup.mqh>
 //+------------------------------------------------------------------+
 //| Script program start function                                    |
 //+------------------------------------------------------------------+
@@ -189,6 +190,23 @@ void OnStart()
    if(!blob.isValid() || blob.size()!=4)
      {
       Print(">>> Error: Blob should default empty db name to main schema.");
+      SQLite3::shutdown();
+      return;
+     }
+
+   string backupPath=filesPath+"\\test_backup.db";
+   SQLite3 backupDb(backupPath,SQLITE_OPEN_READWRITE|SQLITE_OPEN_CREATE);
+   if(!backupDb.isValid())
+     {
+      Print(">>> Error opening backup database: ",backupPath);
+      SQLite3::shutdown();
+      return;
+     }
+
+   Backup bk(backupDb,"",db,"");
+   if(!bk.isValid())
+     {
+      Print(">>> Error: Backup should default empty db names to main schema.");
       SQLite3::shutdown();
       return;
      }

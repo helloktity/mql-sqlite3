@@ -16,10 +16,17 @@ private:
 public:
                      Backup(const SQLite3 &dest,string destDbName,const SQLite3 &src,string srcDbName)
      {
+      m_ref=0;
       uchar destDbNameBuf[];
       uchar srcDbNameBuf[];
-      StringToUtf8(destDbName,destDbNameBuf);
-      StringToUtf8(srcDbName,srcDbNameBuf);
+      if(destDbName==NULL || destDbName=="")
+         StringToUtf8("main",destDbNameBuf);
+      else
+         StringToUtf8(destDbName,destDbNameBuf);
+      if(srcDbName==NULL || srcDbName=="")
+         StringToUtf8("main",srcDbNameBuf);
+      else
+         StringToUtf8(srcDbName,srcDbNameBuf);
       m_ref=sqlite3_backup_init(dest.ref(),destDbNameBuf,src.ref(),srcDbNameBuf);
      }
 
