@@ -38,7 +38,11 @@ void OnStart()
    Print(dbPath);
 
    SQLite3 db(dbPath,SQLITE_OPEN_READWRITE|SQLITE_OPEN_CREATE);
-   if(!db.isValid()) return;
+   if(!db.isValid())
+     {
+      SQLite3::shutdown();
+      return;
+     }
 
    if(!db.hasDb("main"))
      {
@@ -86,6 +90,7 @@ void OnStart()
    if(!s.isValid())
      {
       Print(db.getErrorMsg());
+      SQLite3::shutdown();
       return;
      }
 
