@@ -96,7 +96,7 @@ public:
      {
       char buf[];
       StringToUtf8(db,buf);
-      return -1==sqlite3_db_readonly(m_ref,buf);
+      return -1!=sqlite3_db_readonly(m_ref,buf);
      }
    string            getDbFilename(string db) const
      {
@@ -151,7 +151,7 @@ public:
      {
       char u8name[],u8entry[];
       StringToUtf8(name,u8name);
-      StringToUtf8(name,u8entry);
+      StringToUtf8(entry,u8entry);
       intptr_t errMsg;
       int res= sqlite3_load_extension(m_ref,u8name,u8entry,errMsg);
       if(res == SQLITE_OK) return true;
