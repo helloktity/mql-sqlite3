@@ -96,25 +96,33 @@ public:
      {
       char buf[];
       StringToUtf8(db,buf);
-      return -1==sqlite3_db_readonly(m_ref,buf);
+      return -1!=sqlite3_db_readonly(m_ref,buf);
      }
    string            getDbFilename(string db) const
      {
+      if(db==NULL || db=="")
+         return StringFromUtf8Pointer(sqlite3_db_filename(m_ref,0));
       char buf[];
       StringToUtf8(db,buf);
       return StringFromUtf8Pointer(sqlite3_db_filename(m_ref,buf));
      }
    int               getDbColumnMetadata(string db,string table,string column,ColumnInfo &info)
      {
-      char zDbName[];
       char zTableName[];
       char zColumnName[];
-      StringToUtf8(db,zDbName);
       StringToUtf8(table,zTableName);
       StringToUtf8(column,zColumnName);
       intptr_t pDataType;
       intptr_t pCollSeq;
-      int res=sqlite3_table_column_metadata(m_ref,zDbName,zTableName,zColumnName,pDataType,pCollSeq,info.NotNull,info.PrimaryKey,info.AutoIncrement);
+      int res=SQLITE_ERROR;
+      if(db==NULL || db=="")
+         res=sqlite3_table_column_metadata(m_ref,0,zTableName,zColumnName,pDataType,pCollSeq,info.NotNull,info.PrimaryKey,info.AutoIncrement);
+      else
+        {
+         char zDbName[];
+         StringToUtf8(db,zDbName);
+         res=sqlite3_table_column_metadata(m_ref,zDbName,zTableName,zColumnName,pDataType,pCollSeq,info.NotNull,info.PrimaryKey,info.AutoIncrement);
+        }
       if(res==SQLITE_OK)
         {
          info.DataType=StringFromUtf8Pointer(pDataType);
@@ -151,7 +159,7 @@ public:
      {
       char u8name[],u8entry[];
       StringToUtf8(name,u8name);
-      StringToUtf8(name,u8entry);
+      StringToUtf8(entry,u8entry);
       intptr_t errMsg;
       int res= sqlite3_load_extension(m_ref,u8name,u8entry,errMsg);
       if(res == SQLITE_OK) return true;
@@ -166,7 +174,7 @@ public:
    int               setAutoCheckpoint(int frameThreshold) {return sqlite3_wal_autocheckpoint(m_ref,frameThreshold);}
    int               checkpoint(string db,int mode,int &pnLog,int &pnCkpt)
      {
-      if(db==NULL)
+      if(db==NULL || db=="")
          return sqlite3_wal_checkpoint_v2(m_ref, 0, mode, pnLog, pnCkpt);
       else
         {
