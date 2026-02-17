@@ -119,6 +119,22 @@ void OnStart()
    Statement insertStmt(db,"insert into buy_orders(a,b) values(?,?);");
    if(!insertStmt.isValid()
       || insertStmt.bind(1,1)!=SQLITE_OK
+      || insertStmt.bind(2,"abc")!=SQLITE_OK)
+     {
+      Print(">>> Error preparing insert test row: ",db.getErrorMsg());
+      SQLite3::shutdown();
+      return;
+     }
+
+   string expandedInsertSql=insertStmt.getExpandedSql();
+   if(expandedInsertSql==NULL || StringFind(expandedInsertSql,"abc")<0)
+     {
+      Print(">>> Error: expanded SQL should include bound text value.");
+      SQLite3::shutdown();
+      return;
+     }
+
+   if(insertStmt.step()!=SQLITE_DONE)
       || insertStmt.bind(2,"abc")!=SQLITE_OK
       || insertStmt.step()!=SQLITE_DONE)
      {
