@@ -14,35 +14,45 @@ class Statement
 private:
    int               m_valid;
    intptr_t          m_ref;
+   intptr_t          m_conn;
 public:
 
    static bool       isComplete(string sql)
      {
-      uchar buf[];
+      char buf[];
       StringToUtf8(sql,buf);
       return 1==sqlite3_complete(buf);
      }
 
                      Statement(const SQLite3 &conn,string sql)
      {
-      m_valid=sqlite3_prepare(conn.ref(),sql,m_ref);
+      m_conn=conn.ref();
+      m_ref=0;
+      m_valid=sqlite3_prepare(m_conn,sql,m_ref);
      }
-                    ~Statement() {if(isValid())sqlite3_finalize(m_ref);}
+                    ~Statement() {if(m_ref!=0)sqlite3_finalize(m_ref);}
 
    bool              setSql(string sql)
      {
-      if(isValid())
+      if(m_ref!=0)
         {
-         intptr_t h=getConnectionHandle();
          sqlite3_finalize(m_ref);
-         m_valid=sqlite3_prepare(h,sql,m_ref);
-         return m_valid==SQLITE_OK;
+         m_ref=0;
         }
-      return false;
+      if(m_conn==0) return false;
+      m_valid=sqlite3_prepare(m_conn,sql,m_ref);
+      return m_valid==SQLITE_OK;
      }
    string            getSql() const {return StringFromUtf8Pointer(sqlite3_sql(m_ref));}
-   string            getExpandedSql() const {return StringFromUtf8Pointer(sqlite3_expanded_sql(m_ref));}
-   intptr_t          getConnectionHandle() const {return sqlite3_db_handle(m_ref);}
+   string            getExpandedSql() const
+     {
+      intptr_t expandedSql=sqlite3_expanded_sql(m_ref);
+      if(expandedSql==0) return NULL;
+      string sql=StringFromUtf8Pointer(expandedSql);
+      sqlite3_free(expandedSql);
+      return sql;
+     }
+   intptr_t          getConnectionHandle() const {if(m_ref!=0)return sqlite3_db_handle(m_ref);return m_conn;}
 
    bool              isValid() const {return m_valid==SQLITE_OK;}
 
@@ -61,7 +71,7 @@ public:
    string            getParameterName(int i) const {return StringFromUtf8Pointer(sqlite3_bind_parameter_name(m_ref,i));}
    int               getParameterIndex(string name) const
      {
-      uchar u8name[];
+      char u8name[];
       StringToUtf8(name,u8name);
       return sqlite3_bind_parameter_index(m_ref,u8name);
      }
@@ -72,9 +82,9 @@ public:
      }
    int               bind(int i,string text)
      {
-      uchar u8text[];
+      char u8text[];
       StringToUtf8(text,u8text);
-      return sqlite3_bind_text(m_ref,i,u8text,ArraySize(u8text),SQLITE_TRANSIENT);
+      return sqlite3_bind_text(m_ref,i,u8text,MathMax(ArraySize(u8text)-1,0),SQLITE_TRANSIENT);
      }
 
    int               bind(int i,double value) {return sqlite3_bind_double(m_ref,i,value);}

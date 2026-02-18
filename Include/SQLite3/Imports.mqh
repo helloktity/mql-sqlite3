@@ -70,10 +70,22 @@ int sqlite3_limit(intptr_t,int id,int newVal);
 int sqlite3_busy_timeout(intptr_t,int ms);
 
 intptr_t sqlite3_db_filename(intptr_t,const char &zDbName[]);
+intptr_t sqlite3_db_filename(intptr_t,intptr_t);
 int sqlite3_db_readonly(intptr_t,const char &zDbName[]);
 int sqlite3_table_column_metadata(
                                   intptr_t,/* Connection handle */
                                   const char &zDbName[],/* Database name or NULL */
+                                  const char &zTableName[],/* Table name */
+                                  const char &zColumnName[],/* Column name */
+                                  intptr_t   &pzDataType,/* OUTPUT: Declared data type */
+                                  intptr_t   &pzCollSeq,/* OUTPUT: Collation sequence name */
+                                  bool &isNotNull,/* OUTPUT: True if NOT NULL constraint exists */
+                                  bool &isPrimaryKey,/* OUTPUT: True if column part of PK */
+                                  bool &isAutoinc/* OUTPUT: True if column is auto-increment */
+                                  );
+int sqlite3_table_column_metadata(
+                                  intptr_t,/* Connection handle */
+                                  intptr_t,/* Database name or NULL */
                                   const char &zTableName[],/* Table name */
                                   const char &zColumnName[],/* Column name */
                                   intptr_t   &pzDataType,/* OUTPUT: Declared data type */
@@ -217,14 +229,14 @@ int sqlite3_vfs_unregister(intptr_t);
 //+------------------------------------------------------------------+
 int sqlite3_open(const string &filename,intptr_t &handle,int flags,string vfs="")
   {
-   uchar u8filename[];
+   char u8filename[];
    StringToUtf8(filename,u8filename);
    int res=0;
    if(vfs=="")
       res=sqlite3_open_v2(u8filename,handle,flags,0);
    else
      {
-      uchar u8vfs[];
+      char u8vfs[];
       StringToUtf8(vfs,u8vfs);
       res=sqlite3_open_v2(u8filename,handle,flags,u8vfs);
      }
@@ -235,7 +247,7 @@ int sqlite3_open(const string &filename,intptr_t &handle,int flags,string vfs=""
 //+------------------------------------------------------------------+
 int sqlite3_prepare(const intptr_t handle,const string &sql,intptr_t &stmt)
   {
-   uchar u8sql[];
+   char u8sql[];
    StringToUtf8(sql,u8sql);
    int res=sqlite3_prepare_v2(handle,u8sql,ArraySize(u8sql),stmt,0);
    return res;
