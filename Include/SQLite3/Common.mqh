@@ -107,3 +107,10 @@ void StringToUtf8(const string str,uchar &utf8[],bool ending=true)
    StringToCharArray(str,utf8,0,count,CP_UTF8);
   }
 //+------------------------------------------------------------------+
+void StringToUtf8(const string str,char &utf8[],bool ending=true)
+  {
+   if(!ending && str=="") return;
+   int count=ending ? -1 : StringLen(str);
+   StringToCharArray(str,utf8,0,count,CP_UTF8);
+  }
+//+------------------------------------------------------------------+

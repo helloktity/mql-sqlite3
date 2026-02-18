@@ -229,14 +229,14 @@ int sqlite3_vfs_unregister(intptr_t);
 //+------------------------------------------------------------------+
 int sqlite3_open(const string &filename,intptr_t &handle,int flags,string vfs="")
   {
-   uchar u8filename[];
+   char u8filename[];
    StringToUtf8(filename,u8filename);
    int res=0;
    if(vfs=="")
       res=sqlite3_open_v2(u8filename,handle,flags,0);
    else
      {
-      uchar u8vfs[];
+      char u8vfs[];
       StringToUtf8(vfs,u8vfs);
       res=sqlite3_open_v2(u8filename,handle,flags,u8vfs);
      }
@@ -247,7 +247,7 @@ int sqlite3_open(const string &filename,intptr_t &handle,int flags,string vfs=""
 //+------------------------------------------------------------------+
 int sqlite3_prepare(const intptr_t handle,const string &sql,intptr_t &stmt)
   {
-   uchar u8sql[];
+   char u8sql[];
    StringToUtf8(sql,u8sql);
    int res=sqlite3_prepare_v2(handle,u8sql,ArraySize(u8sql),stmt,0);
    return res;

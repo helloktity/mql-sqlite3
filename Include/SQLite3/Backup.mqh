@@ -17,8 +17,8 @@ public:
                      Backup(const SQLite3 &dest,string destDbName,const SQLite3 &src,string srcDbName)
      {
       m_ref=0;
-      uchar destDbNameBuf[];
-      uchar srcDbNameBuf[];
+      char destDbNameBuf[];
+      char srcDbNameBuf[];
       if(destDbName==NULL || destDbName=="")
          StringToUtf8("main",destDbNameBuf);
       else

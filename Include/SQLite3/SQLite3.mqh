@@ -192,7 +192,7 @@ public:
          return sqlite3_wal_checkpoint_v2(m_ref, 0, mode, pnLog, pnCkpt);
       else
         {
-         uchar u8db[];
+         char u8db[];
          StringToUtf8(db,u8db);
          return sqlite3_wal_checkpoint_v2(m_ref, u8db, mode, pnLog, pnCkpt);
         }
@@ -200,7 +200,7 @@ public:
 
    // db config
    #define DB_CONFIG(Name,MACRO) \
-   bool              is##Name##Enabled() const {int res;sqlite3_db_config(m_ref,MACRO,-1,res);return res!=0;}\
+   bool              is##Name##Enabled() const {int res=0;sqlite3_db_config(m_ref,MACRO,-1,res);return res!=0;}\
    void              set##Name##Enabled(bool value) {sqlite3_db_config(m_ref,MACRO,value,0);}
 
    DB_CONFIG(Trigger,SQLITE_DBCONFIG_ENABLE_TRIGGER)

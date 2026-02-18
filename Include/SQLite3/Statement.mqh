@@ -19,7 +19,7 @@ public:
 
    static bool       isComplete(string sql)
      {
-      uchar buf[];
+      char buf[];
       StringToUtf8(sql,buf);
       return 1==sqlite3_complete(buf);
      }
@@ -71,7 +71,7 @@ public:
    string            getParameterName(int i) const {return StringFromUtf8Pointer(sqlite3_bind_parameter_name(m_ref,i));}
    int               getParameterIndex(string name) const
      {
-      uchar u8name[];
+      char u8name[];
       StringToUtf8(name,u8name);
       return sqlite3_bind_parameter_index(m_ref,u8name);
      }
@@ -82,7 +82,7 @@ public:
      }
    int               bind(int i,string text)
      {
-      uchar u8text[];
+      char u8text[];
       StringToUtf8(text,u8text);
       return sqlite3_bind_text(m_ref,i,u8text,MathMax(ArraySize(u8text)-1,0),SQLITE_TRANSIENT);
      }
